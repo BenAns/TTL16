@@ -1,0 +1,14 @@
+At a high level, this computer is to be structured of the CPU, (primary) memory and expansion cards. The
+expansion cards add all I/O functionality, extra computer power beyond the CPU or extra (secondary) memory
+beyond the primary memory.
+
+From the view of the CPU, the expansion cards are memory-mapped devices. For this, the computer will have
+a 16-bit data bus and a 32-bit address bus, split into 22-bit pages and 10-bit offsets in each of the pages.
+Any expansion card will have pages allocated based on the socket it is plugged into, which only it can
+communicate to the CPU with. Primary memory will provide some number of pages of memory to the CPU, but
+not be able to interfere with the pages allocated to expansion cards. This primary memory will provide whole
+16-bit words for each address.
+
+The expansion cards can also cause hardware interrupts on the CPU. Depending on the slot of the expansion card,
+a 4-bit code is given to the CPU for the interrupt. This means that a maximum of 16 expansion card devices
+can be used at once.
