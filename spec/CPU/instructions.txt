@@ -1,0 +1,199 @@
+Memory:
+None of these instructions have an effect on the flags register.
+
+All instrutions when invoked with a bank register, or BANKDIS, may throw a software
+interrupt with code 0x02 if bank access has been disabled.
+
+MOV A, B:
+    Moves the value B to A
+    A is a register, R0-R15, B0-B7, to write directly to, an absolute memory address
+    to write to or a register, R0-R15, pointing to an address to write to (with or
+    without an offset).
+    B is a literal to use directly, a register (R0-R15, B0-B7, PC, IC or FL) to read
+    directly from, an absolute memory address to read from or a register, R0-R15,
+    pointing to an address to read from (with or without an offset).
+
+IMP A:
+    Import memory into bank A
+    A is a bank register, B0-B7, which contains the address of the page to write to its
+    corresponding bank.
+
+FLSH A:
+    Flushes bank A to memory
+    A is a bank register, B0-B7, which contains the address of the page to write to its
+    corresponding bank.
+
+CACHE A:
+    Sets A to caching mode
+    A is a data bank register, B4-B7, representing the bank to switch to caching mode.
+
+PASSTHR A:
+    Sets A to pass-through mode
+    A is a data bank register, B4-B7, representing the bank to switch to pass-through mode.
+
+BANKDIS:
+    Disables bank register operations until the next interrupt
+
+SETIVPR A:
+    Sets the interrupt vector page register
+    A is some literal representing an address
+    Throws software interrupt 0x04 if called when interrupts are enabled
+
+Arithmetic:
+All these instructions take a destination "A", and operands "B" and possibly "C". All
+these "A", "B" and "C" are general purpose registers R0-R15. These instructions all
+consider the values in these registers than the register numbers themselves.
+
+All these will set the zero flag is the result of the calculation is 0, or clear it if
+the result is not zero, but some instructions have additional flag behaviour.
+
+ADD A, B, C:
+    Sets A to the value of B + C
+    Flags:
+	Overflow flag - Set if B + C causes overflow, cleared otherwise
+
+SUB A, B, C:
+    Sets A to the value of B - C
+    Flags:
+	Overflow flag - Cleared if B - C causes underflow, set otherwise
+
+UMUL A, B, C;
+    Sets A to the value of B * C (unsigned multiply)
+    Flags:
+	Overflow flag - Set if B * C causes overflow, cleared otherwise
+
+SMUL A, B, C:
+    Sets A to the value of B * C (signed multiply)
+    Flags:
+	Overflow flag - Set if B * C causes overflow, cleared otherwise
+
+UDIV A, B, C:
+    Sets A to the value of B / C (unsigned divide)
+    Throws software interrupt with code 0x01 if C is 0
+    Flags:
+	Overflow flag - Set if B / C causes overflow, cleared otherwise
+
+SDIV A, B, C:
+    Sets A to the value of B / C (signed divide)
+    Throws software interrupt with code 0x01 if C is 0
+    Flags:
+	Overflow flag - Set if B / C causes overflow, cleared otherwise
+
+NEG A, B:
+    Sets A to the value of -B (negation)
+    Flags:
+	Overflow flag - Set if -B causes overflow, cleared otherwise
+
+AND A, B, C:
+    Sets A to B & C (bitwise AND)
+
+OR A, B, C:
+    Sets A to B | C (bitwise OR)
+
+NOT A, B:
+    Set A to ~B (complement)
+
+XOR A, B, C:
+    Sets A to B ^ C (bitwise XOR)
+
+LSH A, B, C:
+    Sets A to the left shift of B performed C times
+    Flags:
+        Overflow flag - Set if any 1 bits are lost by the shift, cleared otherwise
+
+ARSH A, B, C:
+    Sets A to the right arithmetic shift of B performed C times
+    Flags:
+        Overflow flag - Set if any 1 bits are lost by the shift, cleared otherwise
+
+LRSH A, B, C:
+    Sets A to the right logical shift of B performed C times
+    Flags:
+        Overflow flag - Set if any 1 bits are lost by the shift, cleared otherwise
+
+ROL A, B, C:
+    Sets A to the left rotation of B performed C times
+
+ROR A, B, C:
+    Sets A to the right rotation of B performed C times
+
+
+Comparison:
+The comparison instructions work on two operands, "A" and "B", which are general
+purpose registers R0-R15. These comparisons are consider the values in these registers
+rather than the register numbers themselves.
+
+These instructions have the same flag behaviour:
+    Less flag    - Set if A < B
+    Equal flag   - Set if A = B
+    Greater flag - Set if A > B
+
+UCMP A, B:
+    Compares A and B for effects on the flags register, using unsigned A and B
+
+SCMP A, B:
+    Compares A and B for effects on the flags register, using signed A and B
+
+
+Branching:
+All these instructions take an operand "A". This "A" can be an absolute address, an
+address offset from PC or an address offset from any register R0-R15.
+
+All of these have the same flag register behaviour:
+    If using an absolute address, the zero flag is set if A is 0, otherwise it is
+    cleared.
+
+    If using an offset address, say from register R (PC or R0-R15) and offset D,
+    then:
+        Zero flag     - Set if R + D is 0, cleared otherwise
+	Overflow flag - Set if R + D causes overflow, cleared otherwise
+
+JMP A:
+    Jumps execution to address A
+
+JZ A:
+    Jumps execution to address A if the zero flag is set
+
+JNZ A:
+    Jumps execution to address A if the zero flag is not set
+
+JE A:
+    Jumps execution to address A if the equal flag is set
+
+JNE A:
+    Jumps execution to address A if the equal flag is not set
+
+JG A:
+    Jumps execution to address A if the greater flag is set
+
+JNG A:
+    Jumps execution to address A if the greater flag is not set
+
+JL A:
+    Jumps execution to address A if the less flag is set
+
+JNL A:
+    Jumps execution to address A if the less flag is not set
+
+JO A:
+    Jumps execution to address A if the overflow flag is set
+
+JNO A:
+    Jumps execution to address A if the overflow flag is not set
+
+JC A:
+    Jumps execution to address A if the carry flag is set
+
+JNC A:
+    Jumps execution to address A if the carry flag is not set
+
+RETI:
+    Enable interrupts and return execution to the address in the interrupt
+    address register
+    Throws software interrupt code 0x02 if invoked when interrupts are already enabled
+
+Miscellaneous:
+
+NOP:
+    A null operation, does nothing
+    Has no effect the flag register

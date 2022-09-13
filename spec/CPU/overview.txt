@@ -1,5 +1,5 @@
-The CPU is a 16-bit processor in all respects apart from the 32-bit address bus.These 32-bit
-addresses are split into a 22-bit page number and 10-bit page offset. It uses 16-bit words.
+The CPU is a 16-bit processor in all respects apart from the 32-bit address bus.These 30-bit
+addresses are split into a 16-bit page number and 14-bit page offset. It uses 16-bit words.
 
 The CPU will have 16 general purpose registers. It will only support integer mathematical
 operations. It will have a form of pipelining. It will cache pages for instruction and data
@@ -10,5 +10,7 @@ For simplicity in hardware design, it will be managed by instructions on the pro
 will be a way to access pages without caching so that I/O expansion cards and such can be
 used more easily.
 
-The CPU will also have hardware interrupts. This will have an accompanying 4-bit code to
+The CPU will also have hardware and interrupts. This will have an accompanying 8-bit code to
 give more information on the device which triggered the interrupt.
+
+There will also be a flags register that may be updated depending on certain instructions.

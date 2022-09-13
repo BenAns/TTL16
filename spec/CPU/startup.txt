@@ -1,0 +1,8 @@
+On startup, interrupts are disabled, the instruction vector page register is
+set to 0x0000, the interrupt address register is set to 0x0000 and PC is set
+to 0x0000. All banks for data are set to cached. The instruction vector page
+is then imported and execution begins.
+
+Note that execution starts from the instruction vector page cache, initialised
+with page 0x0000, rather than any of the other banks. Effectively, startup is
+performed as if an interrupt were called, with some default values set.

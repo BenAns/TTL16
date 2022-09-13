@@ -1,0 +1,22 @@
+There are 16 general purpose registers, R0-R15, each 16 bits long.
+
+There are 8 bank registers, B0-B7, each 16 bits long. B0-B3 are
+the banks for instruction memory (lowest address to highest),
+whereas B4-B7 are the banks for data memory (lowest address to
+highest again). Where this, there is a bank use register, BU,
+which stores whether any of the data banks are cached or direct
+pass-through.
+
+There is a flags register, FL, containing the following flags: zero
+less, equal, greater and overflow. These are each single bit
+values that may be determined by certain instructions.
+
+There is a program counter, PC, which contains the address of the
+instruction to execute. Specifically, fetching an instruction, the
+value in IR is used. Immediately after this, it is incremented. This
+register is modified in branching instructions.
+
+There is an interrupt register, IR, which contains information on
+interrupt caused. From LSB to MSB:
+    Bits 0-7 - Interrupt code
+    Bit 8    - 1 if hardware interrupt, 0 if software interrupt
