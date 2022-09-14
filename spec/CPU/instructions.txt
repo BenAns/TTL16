@@ -57,13 +57,8 @@ SUB A, B, C:
     Flags:
 	Overflow flag - Cleared if B - C causes underflow, set otherwise
 
-UMUL A, B, C;
-    Sets A to the value of B * C (unsigned multiply)
-    Flags:
-	Overflow flag - Set if B * C causes overflow, cleared otherwise
-
-SMUL A, B, C:
-    Sets A to the value of B * C (signed multiply)
+MUL A, B, C;
+    Sets A to the value of B * C
     Flags:
 	Overflow flag - Set if B * C causes overflow, cleared otherwise
 
@@ -78,6 +73,18 @@ SDIV A, B, C:
     Throws software interrupt with code 0x01 if C is 0
     Flags:
 	Overflow flag - Set if B / C causes overflow, cleared otherwise
+
+UMOD A, B, C:
+    Sets A to the value of B % C (unsigned modulo)
+    Throws software interrupt with code 0x01 if C is 0
+    Flags:
+        Overflow flag - Set if B / C causes overflow, cleared otherwise
+
+SMOD A, B, C:
+    Sets A to the value of B % C (signed modulo)
+    Throws software interrupt with code 0x01 if C is 0
+    Flags:
+        Overflow flag - Set if B / C causes overflow, cleared otherwise
 
 NEG A, B:
     Sets A to the value of -B (negation)

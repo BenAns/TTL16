@@ -1,0 +1,56 @@
+The ALU will be its own fully functional subsystem. All operations may be implemented
+using it, though it may not directly support all operations. There will be an output
+for when the operation is completed, as it may need multiple clock cycles.
+
+Operations needed:
+Addition
+Subtration
+Negation
+
+Multiplication
+Division
+Modulo
+
+Logical AND
+Logical OR
+Logical XOR
+Complement
+
+Left Shift
+Arithetic/Logical Right Shift
+Left Rotate
+Right Rotate
+
+Comparison (Signed/Unsigned)
+
+Shifts: A << B or A >> B
+The shifts will be implemented using a shift register and counter
+The new value to shift in at each stage can be determined with logic
+Overflow can be determined with logic
+-> Can multiplication, division, shifts, etc. be implemented using the same shifter?
+
+Shift Process:
+    Need: (Left) shift register, counter, latch, logic to reverse bits if needed
+    If right shift: reverse A
+    Load (new) A into shift register
+    Load B into counter
+    Clear the latch
+    Let input into the shift register be:
+        1 if original A's first bit is 1 and arithmetic right shift, or rotate and new A's
+        first bit is 1, else 0
+    On each clock pulse, shift the shift register and decrement the counter, setting the latch
+    if the top bit is 1 and we are not rotating
+    Once the counter is zero, prevent clock pulses into the shift register, output is complete
+    We have another reverse on the output if right shifting
+
+Multiplication Process:
+    Put operands into shift registers, operand 1 left and operand 2 right
+    Initialise product register to 0
+    Let sum be operand 1 + product
+    On each clock pulse, if operand 2 ends in a 1, set product to the sum, then always
+    left shift operand 1 and right shift operand 2
+    Repeat until operand 1 or 2 is 0
+
+Division/Modulo:
+    Need different signed and unsigned versions
+    ?? Change sign before/after division/modulo as needed
