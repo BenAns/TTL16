@@ -10,12 +10,11 @@ one, or performing some illegal operation. These also have
 an 8-bit code given for their nature. Some codes already
 have meaning given to them:
     0x00 - Illegal opcode
-    0x01 - Division by zero
-    0x02 - Attempt to access a bank register when bank
+    0x01 - Attempt to access a bank register when bank
            register access has been disabled
-    0x03 - Attempt to return from an interrupt despite
+    0x02 - Attempt to return from an interrupt despite
            not handling one
-    0x04 - Attempt to set the interrupt vector page register
+    0x03 - Attempt to set the interrupt vector page register
            despite interrupts being enabled
 
 Interrupts of all form are disabled while handling an interrupt.

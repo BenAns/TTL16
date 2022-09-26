@@ -2,7 +2,7 @@ Memory:
 None of these instructions have an effect on the flags register.
 
 All instrutions when invoked with a bank register, or BANKDIS, may throw a software
-interrupt with code 0x02 if bank access has been disabled.
+interrupt with code 0x01 if bank access has been disabled.
 
 MOV A, B:
     Moves the value B to A
@@ -37,7 +37,7 @@ BANKDIS:
 SETIVPR A:
     Sets the interrupt vector page register
     A is some literal representing an address
-    Throws software interrupt 0x04 if called when interrupts are enabled
+    Throws software interrupt 0x03 if called when interrupts are enabled
 
 Arithmetic:
 All these instructions take a destination "A", and operands "B" and possibly "C". All
@@ -57,35 +57,6 @@ SUB A, B, C:
     Flags:
 	Overflow flag - Cleared if B - C causes underflow, set otherwise
 
-MUL A, B, C;
-    Sets A to the value of B * C
-    Flags:
-	Overflow flag - Set if B * C causes overflow, cleared otherwise
-
-UDIV A, B, C:
-    Sets A to the value of B / C (unsigned divide)
-    Throws software interrupt with code 0x01 if C is 0
-    Flags:
-	Overflow flag - Set if B / C causes overflow, cleared otherwise
-
-SDIV A, B, C:
-    Sets A to the value of B / C (signed divide)
-    Throws software interrupt with code 0x01 if C is 0
-    Flags:
-	Overflow flag - Set if B / C causes overflow, cleared otherwise
-
-UMOD A, B, C:
-    Sets A to the value of B % C (unsigned modulo)
-    Throws software interrupt with code 0x01 if C is 0
-    Flags:
-        Overflow flag - Set if B / C causes overflow, cleared otherwise
-
-SMOD A, B, C:
-    Sets A to the value of B % C (signed modulo)
-    Throws software interrupt with code 0x01 if C is 0
-    Flags:
-        Overflow flag - Set if B / C causes overflow, cleared otherwise
-
 NEG A, B:
     Sets A to the value of -B (negation)
     Flags:
@@ -103,26 +74,21 @@ NOT A, B:
 XOR A, B, C:
     Sets A to B ^ C (bitwise XOR)
 
-LSH A, B, C:
-    Sets A to the left shift of B performed C times
+ARSH A, B:
+    Sets A to the right arithmetic shift of B performed once
     Flags:
-        Overflow flag - Set if any 1 bits are lost by the shift, cleared otherwise
+        Overflow flag - Set if a 1 bit is lost by the shift, cleared otherwise
 
-ARSH A, B, C:
-    Sets A to the right arithmetic shift of B performed C times
+LRSH A, B:
+    Sets A to the right logical shift of B performed once
     Flags:
-        Overflow flag - Set if any 1 bits are lost by the shift, cleared otherwise
+        Overflow flag - Set if a 1 bit is lost by the shift, cleared otherwise
 
-LRSH A, B, C:
-    Sets A to the right logical shift of B performed C times
-    Flags:
-        Overflow flag - Set if any 1 bits are lost by the shift, cleared otherwise
+ROL A, B:
+    Sets A to the left rotation of B performed once
 
-ROL A, B, C:
-    Sets A to the left rotation of B performed C times
-
-ROR A, B, C:
-    Sets A to the right rotation of B performed C times
+ROR A, B:
+    Sets A to the right rotation of B performed once
 
 
 Comparison:
