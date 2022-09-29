@@ -2,23 +2,33 @@ The ALU will be its own fully functional subsystem. All operations may be implem
 using it, though it may not directly support all operations.
 
 Operations needed:
-Addition
-Subtration
-Negation
+XX01 - Addition
+XX11 - Subtration
+XX10 - Negation
+XX11 - Comparison (Signed/Unsigned)
 
-Logical AND
-Logical OR
-Logical XOR
-Complement
+XX00 - Logical AND
+XX01 - Logical OR
+XX00 - Logical XOR
+XX10 - Complement
 
-Left Shift
-Arithetic/Logical Right Shift
-Left Rotate
-Right Rotate
+Left Shift (meant to be used with addition of the same number)
+XX10 - Arithetic Right Shift
+XX00 - Logical Right Shift
+XX10 - Left Rotate
+XX01 - Right Rotate
 
-Comparison (Signed/Unsigned)
+Flags:
+Overflow - Set if the operation causes overflow (0000-0010, 1000)
+Less - Set for operation 0011 if input 1 is less than input 2
+Equal - Set for operation 0011 if input 1 is equal to input 2
+Greater - Set for operation 0011 if input 1 is greater than input 2
+Zero - Set if the result of an operation is 0
 
 All these operations can be performed in one clock cycle using combinational logic.
 
-Inputs: Two 16-bit integers (A, B)
+Inputs: Two 16-bit integers (A, B), operation (three-bit number)
 Outputs: One 16-bit integer (C), flags (overflow, less, equal, greater, zero)
+
+If trying to use an illegal operation (i.e. when the operation is not one of
+the numbers defined above), then the ALU has undefined behaviour.
