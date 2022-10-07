@@ -35,16 +35,15 @@ module ALU(input [15:0] A,
 		&op[3:2] & ~|op[2:1] ? xorOut :
 		shiftOut;
 
-	wire overflow = (~|op[2:1] & cout) | (~op[1] & op[2] & B[0]);
+	wire overflow = (~op[4] & ~op[3] & cout) | (op[4] & op[3] & ~op[2] & B[0]);
 	wire zero = ~|Q;
-	wire isComparison = op[0] & op[1] & ~op[3];
+	wire isComparison = op[0] & op[1] & op[3] & ~op[4];
 	wire comparisonXOR = op[2] & (A[15] ^ B[15]);
 	wire equal = zero & isComparison;
 	wire less = (comparisonXOR ^ Q[15]) & isComparison;
 	wire greater = ~equal & ~less & isComparison;
 endmodule
 
-`define OPCODE_SUB
 `define OPCODE_NEG
 `define OPCODE_SCMP
 `define OPCODE_USMP
@@ -79,42 +78,51 @@ module ALU_tests;
 
 	integer STDERR = 32'h80000002;
 	integer OPCODE_ADD = 5'b00001;
+	integer OPCODE_SUB = 5'b00011;
+	integer OPCODE_NEG = 5'b00010;
+	integer OPCODE_NOT = 5'b10110;
 
 	initial begin
 		$display("Starting main tests");
-
+		
+		$display("Testing ALU addition");
 		swappedInputs = 0;
 		#100;
-		performMainTests();
-
+		testAdd();
 		swappedInputs = 1;
 		#100;
-		performMainTests();
+		testAdd();
+
+		$display("Testing ALU subtraction");
+		swappedInputs = 0;
+		testSub();
+
+		$display("Testing ALU negation");
+		testNeg();
+
+		$display("Testing ALU signed comparison");
+		$display("Testing ALU unsigned comparison");
+		$display("Testing ALU AND");
+		$display("Testing ALU OR");
+		$display("Testing ALU XOR");
+
+		$display("Testing ALU complement");
+		testNot();
+
+		$display("Testing ALU arithmetic right shift");
+		$display("Testing ALU logical right shift");
+		$display("Testing ALU left rotate");
+		$display("Testing ALU right rotate");
 	end
 
 	task performMainTests;
 		begin
-			$display("Testing ALU addition");
-			testAdd();
 
 
-			$display("Testing ALU subtraction");
-			$display("Testing ALU negation");
-			$display("Testing ALU signed comparison");
-			$display("Testing ALU unsigned comparison");
-			$display("Testing ALU AND");
-			$display("Testing ALU OR");
-			$display("Testing ALU XOR");
-			$display("Testing ALU complement");
-			$display("Testing ALU arithmetic right shift");
-			$display("Testing ALU logical right shift");
-			$display("Testing ALU left rotate");
-			$display("Testing ALU right rotate");
-		end
+	end
 	endtask
 
-	task outputTest(input [255:0] testInfo, input incorrectQ,
-		input incorrectOverflow, input incorrectLess, input incorrectEqual,
+	task outputTest(input [255:0] testInfo, input incorrectQ, input incorrectOverflow, input incorrectLess, input incorrectEqual,
 		input incorrectGreater, input incorrectZero);
 		begin
 			$fwrite(STDERR, {"Failed test: %s\n",
@@ -219,6 +227,115 @@ module ALU_tests;
 				checkTest("Adding one", Y[15:0] + 1,
 					Y == 17'h0ffff, 0, 0, 0,
 					Y == 17'h0ffff);
+		end
+	endtask
+
+	task testSub;
+		begin
+			op = OPCODE_SUB;
+
+			// Test subtracting zero from every integer results
+			// in the same integer
+			Y = 0;
+			for(X = 0; X < 17'h10000; X++)
+				checkTest("Subbing zero", X[15:0], 1, 0, 0,
+					0, X == 0);
+			
+			// Test zero subtract any number results in the
+			// negative of the number
+			X = 0;
+			for(Y = 0; Y < 17'h10000; Y++)
+				checkTest("Subbing from zero", -Y[15:0],
+					Y == 0, 0, 0, 0, Y == 0);
+			
+			// Test subtracting 0xffff from every integer is
+			// equivalent to adding one
+			Y = 17'h0ffff;
+			for(X = 0; X < 17'h10000; X++)
+				checkTest("Subbing 0xffff", X[15:0] + 1,
+					X == 17'h0ffff, 0, 0, 0, X == 17'h0ffff);
+
+			// Test subtracting from 0xffff works as should
+			// subtracting from -1
+			X = 17'h0ffff;
+			for(Y = 0; Y < 17'h10000; Y++)
+				checkTest("Subbing from 0xffff",
+					-1 - Y[15:0], 1, 0, 0, 0,
+					Y == 17'h0ffff);
+		end
+	endtask
+
+	task testNeg;
+		begin
+			op = OPCODE_NEG;
+
+			// Test every integer Y retrieves its correct -Y,
+			// varying X to make sure it is independent of X
+			X = 0;
+			negTestCase();
+
+			X = 1;
+			negTestCase();
+
+			X = 10;
+			negTestCase();
+
+			X = 10000;
+			negTestCase();
+
+			X = 17'h0fffe;
+			negTestCase();
+
+			X = 17'h0ffff;
+			negTestCase();
+		end
+	endtask
+
+	task negTestCase;
+		reg [1024:0] testName;
+		begin
+			for(Y = 0; Y < 17'h10000; Y++) begin
+				#1;
+				$sformat(testName, "Negating with X = %04x", X[15:0]);
+				checkTest(testName, -Y[15:0], Y == 0, 0, 0, 0, Y == 0);
+			end;
+		end
+	endtask
+
+	task testNot;
+		begin
+			op = OPCODE_NOT;
+
+			// Test every integer Y retrieves its correct ~Y,
+			// varying X to make sure it is independent of X
+			X = 0;
+			notTestCase();
+
+			X = 1;
+			notTestCase();
+
+			X = 10;
+			notTestCase();
+
+			X = 10000;
+			notTestCase();
+
+			X = 17'h0fffe;
+			notTestCase();
+
+			X = 17'h0ffff;
+			notTestCase();
+		end
+	endtask
+
+	task notTestCase;
+		reg [1024:0] testName;
+		begin
+			for(Y = 0; Y < 17'h10000; Y++) begin
+				#1;
+				$sformat(testName, "Complement with X = %04x", X[15:0]);
+				checkTest(testName, ~Y[15:0], 0, 0, 0, 0, Y == 17'h0ffff);
+			end;
 		end
 	endtask
 endmodule
