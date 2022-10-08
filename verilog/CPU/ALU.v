@@ -28,13 +28,13 @@ module ALU(input [15:0] A,
 	wire shiftCarry = (op[0] & B[0]) | (op[1] & B[15]);
 	wire [15:0] rightShiftOut = {shiftCarry, B[15:1]};
 	wire [15:0] leftShiftOut = {B[14:0], shiftCarry};
-	wire [15:0] shiftOut = op[0] ? leftShiftOut : rightShiftOut;
+	wire [15:0] shiftOut = op[1] & op[2] ? leftShiftOut : rightShiftOut;
 
 	// Get outputs
 	wire [15:0] Q = ~op[4] ? sumout :
 		~|op[3:2] ? andOut :
 		~op[3] & op[2] ? orOut :
-		&op[3:2] & ~|op[2:1] ? xorOut :
+		&op[3:2] & ~|op[1:0] ? xorOut :
 		shiftOut;
 
 	wire overflow = (~op[4] & ~op[3] & cout) | (op[4] & op[3] & ~op[2] & B[0]);
@@ -82,7 +82,6 @@ module ALU_tests;
 		$display("Starting main tests");
 		
 		$display("Testing ALU addition");
-		op = OPCODE_ADD;
 		addTestCase(0);
 		addTestCase(1);
 		addTestCase(2);
@@ -92,7 +91,6 @@ module ALU_tests;
 		addTestCase(16'hfffe);
 
 		$display("Testing ALU subtraction");
-		op = OPCODE_SUB;
 		subTestCase(0);
 		subTestCase(1);
 		subTestCase(2);
@@ -102,7 +100,6 @@ module ALU_tests;
 		subTestCase(16'haabc);
 
 		$display("Testing ALU negation");
-		op = OPCODE_NEG;
 		negTestCase(0);
 		negTestCase(1);
 		negTestCase(10);
@@ -111,7 +108,6 @@ module ALU_tests;
 		negTestCase(16'hffff);
 
 		$display("Testing ALU signed comparison");
-		op = OPCODE_SCMP;
 		cmpTestCase(1, 1);
 		cmpTestCase(1, -1);
 		cmpTestCase(1, 16'h7fff);
@@ -120,7 +116,6 @@ module ALU_tests;
 		cmpTestCase(1, -100);
 
 		$display("Testing ALU unsigned comparison");
-		op = OPCODE_UCMP;
 		cmpTestCase(0, 0);
 		cmpTestCase(0, 1);
 		cmpTestCase(0, 16'hffff);
@@ -130,11 +125,33 @@ module ALU_tests;
 		cmpTestCase(0, 16'haaaa);
 
 		$display("Testing ALU AND");
+		andTestCase(0);
+		andTestCase(1);
+		andTestCase(2);
+		andTestCase(16'hffff);
+		andTestCase(16'hfffe);
+		andTestCase(16'h2abc);
+		andTestCase(16'haabc);
+
 		$display("Testing ALU OR");
+		orTestCase(0);
+		orTestCase(1);
+		orTestCase(2);
+		orTestCase(16'hffff);
+		orTestCase(16'hfffe);
+		orTestCase(16'h2abc);
+		orTestCase(16'haabc);
+
 		$display("Testing ALU XOR");
+		xorTestCase(0);
+		xorTestCase(1);
+		xorTestCase(2);
+		xorTestCase(16'hffff);
+		xorTestCase(16'hfffe);
+		xorTestCase(16'h2abc);
+		xorTestCase(16'haabc);
 
 		$display("Testing ALU complement");
-		op = OPCODE_NOT;
 		notTestCase(0);
 		notTestCase(1);
 		notTestCase(10);
@@ -143,9 +160,60 @@ module ALU_tests;
 		notTestCase(16'hffff);
 
 		$display("Testing ALU arithmetic right shift");
+		arsTestCase(0);
+		arsTestCase(1);
+		arsTestCase(2);
+		arsTestCase(5);
+		arsTestCase(14);
+		arsTestCase(15);
+		arsTestCase(16);
+		arsTestCase(17);
+		arsTestCase(16'hffff);
+		arsTestCase(16'hfffe);
+		arsTestCase(16'h2abc);
+		arsTestCase(16'haabc);
+
 		$display("Testing ALU logical right shift");
+		lrsTestCase(0);
+		lrsTestCase(1);
+		lrsTestCase(2);
+		lrsTestCase(5);
+		lrsTestCase(14);
+		lrsTestCase(15);
+		lrsTestCase(16);
+		lrsTestCase(17);
+		lrsTestCase(16'hffff);
+		lrsTestCase(16'hfffe);
+		lrsTestCase(16'h2abc);
+		lrsTestCase(16'haabc);
+	
 		$display("Testing ALU left rotate");
+		lrotTestCase(0);
+		lrotTestCase(1);
+		lrotTestCase(2);
+		lrotTestCase(5);
+		lrotTestCase(14);
+		lrotTestCase(15);
+		lrotTestCase(16);
+		lrotTestCase(17);
+		lrotTestCase(16'hffff);
+		lrotTestCase(16'hfffe);
+		lrotTestCase(16'h2abc);
+		lrotTestCase(16'haabc);
+		
 		$display("Testing ALU right rotate");
+		rrotTestCase(0);
+		rrotTestCase(1);
+		rrotTestCase(2);
+		rrotTestCase(5);
+		rrotTestCase(14);
+		rrotTestCase(15);
+		rrotTestCase(16);
+		rrotTestCase(17);
+		rrotTestCase(16'hffff);
+		rrotTestCase(16'hfffe);
+		rrotTestCase(16'h2abc);
+		rrotTestCase(16'haabc);
 	end
 
 	task outputTest(input [255:0] testInfo, input badQ, input badOverflow,
@@ -225,6 +293,7 @@ module ALU_tests;
 		reg [1024:0] testName;
 		reg [16:0] sum;
 		begin
+			op = OPCODE_ADD;
 			X = fixedVal;
 			$sformat(testName, "Adding %04x", fixedVal);
 
@@ -247,6 +316,7 @@ module ALU_tests;
 		reg [1023:0] testName;
 		reg [16:0] diff;
 		begin
+			op = OPCODE_SUB;
 			swappedInputs = 0;
 			X = fixedVal;
 			$sformat(testName, "Subtraction with %04x", fixedVal);
@@ -265,12 +335,13 @@ module ALU_tests;
 		end
 	endtask
 
-	task negTestCase(input [15:0] fixedX);
+	task negTestCase(input [15:0] fixedA);
 		reg [1023:0] testName;
 		begin
+			op = OPCODE_NEG;
 			swappedInputs = 0;
-			X = fixedX;
-			$sformat(testName, "Negating with A = %04x", X[15:0]);
+			X = fixedA;
+			$sformat(testName, "Negating with A = %04x", fixedA);
 
 			for(Y = 0; Y < 17'h10000; Y++)
 				checkTest(testName, -Y[15:0], 1'bx,
@@ -285,9 +356,10 @@ module ALU_tests;
 		reg greater;
 		
 		begin
+			op = signedCmp ? OPCODE_SCMP : OPCODE_UCMP;	
 			X = fixedVal;
 			$sformat(testName, "%s comparison with %04x",
-				signedCmp ? "Signed" : "Unsigned", X[15:0]);
+				signedCmp ? "Signed" : "Unsigned", fixedVal);
 
 			for(Y = 0; Y < 17'h10000; Y++) begin
 				less = signedCmp ? $signed(X[15:0]) < $signed(Y[15:0]) : X < Y;
@@ -305,27 +377,70 @@ module ALU_tests;
 		end
 	endtask
 
-	task andTestCase(input reg[15:0] fixedInput);
-		begin
-		end
-	endtask
-
-	task orTestCase(input reg[15:0] fixedInput);
-		begin
-		end
-	endtask
-
-	task xorTestCase(input reg[15:0] fixedInput);
-		begin
-		end
-	endtask
-
-	task notTestCase(input reg[15:0] fixedX);
+	task andTestCase(input reg[15:0] fixedVal);
 		reg [1023:0] testName;
 		begin
+			op = OPCODE_AND;
+			X = fixedVal;
+			$sformat(testName, "ANDing with %04x", fixedVal);
+
+			for(Y = 0; Y < 17'h10000; Y++) begin
+				swappedInputs = 0;
+				checkTest(testName, X & Y, 1'bx,
+					1'bx, 1'bx, 1'bx, (X & Y) == 0);
+
+				swappedInputs = 1;
+				checkTest(testName, X & Y, 1'bx,
+					1'bx, 1'bx, 1'bx, (X & Y) == 0);
+			end
+		end
+	endtask
+
+	task orTestCase(input reg[15:0] fixedVal);
+		reg [1023:0] testName;
+		begin
+			op = OPCODE_OR;
+			X = fixedVal;
+			$sformat(testName, "ORing with %04x", fixedVal);
+
+			for(Y = 0; Y < 17'h10000; Y++) begin
+				swappedInputs = 0;
+				checkTest(testName, X | Y, 1'bx,
+					1'bx, 1'bx, 1'bx, (X | Y) == 0);
+
+				swappedInputs = 1;
+				checkTest(testName, X | Y, 1'bx,
+					1'bx, 1'bx, 1'bx, (X | Y) == 0);
+			end
+		end
+	endtask
+
+	task xorTestCase(input reg[15:0] fixedVal);
+		reg [1023:0] testName;
+		begin
+			op = OPCODE_XOR;
+			X = fixedVal;
+			$sformat(testName, "XORing with %04x", fixedVal);
+
+			for(Y = 0; Y < 17'h10000; Y++) begin
+				swappedInputs = 0;
+				checkTest(testName, X ^ Y, 1'bx,
+					1'bx, 1'bx, 1'bx, (X ^ Y) == 0);
+
+				swappedInputs = 1;
+				checkTest(testName, X ^ Y, 1'bx,
+					1'bx, 1'bx, 1'bx, (X ^ Y) == 0);
+			end
+		end
+	endtask
+
+	task notTestCase(input reg[15:0] fixedA);
+		reg [1023:0] testName;
+		begin
+			op = OPCODE_NOT;
 			swappedInputs = 0;
-			X = fixedX;
-			$sformat(testName, "Complement with A = %04x", X[15:0]);
+			X = fixedA;
+			$sformat(testName, "Complement with A = %04x", fixedA);
 
 			for(Y = 0; Y < 17'h10000; Y++)
 				checkTest(testName, ~Y[15:0], 1'bx,
@@ -333,23 +448,71 @@ module ALU_tests;
 		end
 	endtask
 
-	task arsTestCase(input reg[15:0] fixedX);
+	task arsTestCase(input reg[15:0] fixedA);
+		reg [1023:0] testName;
+		reg [15:0] res;
 		begin
+			op = OPCODE_ARS;
+			swappedInputs = 0;
+			X = fixedA;
+			$sformat(testName, "Arithmetic right shift with A = %04x", fixedA);
+
+			for(Y = 0; Y < 17'h10000; Y++) begin
+				res = (Y[15] << 15) + (Y >> 1);
+				checkTest(testName, res, Y[0],
+					1'bx, 1'bx, 1'bx, res == 0);
+			end
 		end
 	endtask
 
-	task lrsTestCase(input reg[15:0] fixedX);
+	task lrsTestCase(input reg[15:0] fixedA);
+		reg [1023:0] testName;
+		reg [15:0] res;
 		begin
+			op = OPCODE_LRS;
+			swappedInputs = 0;
+			X = fixedA;
+			$sformat(testName, "Logical right shift with A = %04x", fixedA);
+
+			for(Y = 0; Y < 17'h10000; Y++) begin
+				res = Y >> 1;
+				checkTest(testName, res, Y[0],
+					1'bx, 1'bx, 1'bx, res == 0);
+			end
 		end
 	endtask
 
-	task lrotTestCase(input reg[15:0] fixedX);
+	task lrotTestCase(input reg[15:0] fixedA);
+		reg [1023:0] testName;
+		reg [15:0] res;
 		begin
+			op = OPCODE_LROT;
+			swappedInputs = 0;
+			X = fixedA;
+			$sformat(testName, "Left rotate with A = %04x", fixedA);
+
+			for(Y = 0; Y < 17'h10000; Y++) begin
+				res = Y[15] + (Y << 1);
+				checkTest(testName, res, 0,
+					1'bx, 1'bx, 1'bx, res == 0);
+			end
 		end
 	endtask
 
-	task rrotTestCase(input reg[15:0] fixedX);
+	task rrotTestCase(input reg[15:0] fixedA);
+		reg [1023:0] testName;
+		reg [15:0] res;
 		begin
+			op = OPCODE_RROT;
+			swappedInputs = 0;
+			X = fixedA;
+			$sformat(testName, "Arithmetic right shift with A = %04x", fixedA);
+
+			for(Y = 0; Y < 17'h10000; Y++) begin
+				res = (Y[0] << 15) + (Y >> 1);
+				checkTest(testName, res, 0,
+					1'bx, 1'bx, 1'bx, res == 0);
+			end
 		end
 	endtask
 endmodule
