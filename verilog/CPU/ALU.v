@@ -17,6 +17,8 @@ module ALU(input [15:0] A,
 	wire [15:0] sumout;
 	assign {cout, sumout[15:0]} = input1 + input2 + op[1];
 
+	wire cmpSumExtra = (~op[2] & (input1[15] ^ input2[15])) ^ op[2] ^ cout;
+
 	// Logic operations
 	wire [15:0] andOut = A & B;
 	wire [15:0] orOut = input1 | input2;
@@ -38,9 +40,8 @@ module ALU(input [15:0] A,
 	wire overflow = (~op[4] & ~op[3] & cout) | (op[4] & op[3] & ~op[2] & B[0]);
 	wire zero = ~|Q;
 	wire isComparison = op[0] & op[1] & op[3] & ~op[4];
-	wire comparisonXOR = op[2] & (A[15] ^ B[15]);
 	wire equal = zero & isComparison;
-	wire less = (comparisonXOR ^ Q[15]) & isComparison;
+	wire less = cmpSumExtra & isComparison;
 	wire greater = ~equal & ~less & isComparison;
 endmodule
 
@@ -80,7 +81,16 @@ module ALU_tests;
 	integer OPCODE_ADD = 5'b00001;
 	integer OPCODE_SUB = 5'b00011;
 	integer OPCODE_NEG = 5'b00010;
+	integer OPCODE_SCMP = 5'b01011;
+	integer OPCODE_UCMP = 5'b01111;
+	integer OPCODE_AND = 5'b10000;
+	integer OPCODE_OR = 5'b10101;
+	integer OPCODE_XOR = 5'b11100;
 	integer OPCODE_NOT = 5'b10110;
+	integer OPCODE_ARS = 5'b11010;
+	integer OPCODE_LRS = 5'b11000;
+	integer OPCODE_LROT = 5'b11110;
+	integer OPCODE_RROT = 5'b11101;
 
 	initial begin
 		$display("Starting main tests");
@@ -101,7 +111,11 @@ module ALU_tests;
 		testNeg();
 
 		$display("Testing ALU signed comparison");
+		testScmp();
+
 		$display("Testing ALU unsigned comparison");
+		testUcmp();
+
 		$display("Testing ALU AND");
 		$display("Testing ALU OR");
 		$display("Testing ALU XOR");
@@ -114,13 +128,6 @@ module ALU_tests;
 		$display("Testing ALU left rotate");
 		$display("Testing ALU right rotate");
 	end
-
-	task performMainTests;
-		begin
-
-
-	end
-	endtask
 
 	task outputTest(input [255:0] testInfo, input incorrectQ, input incorrectOverflow, input incorrectLess, input incorrectEqual,
 		input incorrectGreater, input incorrectZero);
@@ -171,27 +178,27 @@ module ALU_tests;
 
 			#100;
 
-			if(expectedQ !== Q) begin
+			if(^expectedQ !== 1'bx && expectedQ !== Q) begin
 				error = 1;
 				incorrectQ = 1;
 			end
-			if(expectedOverflow !== overflow) begin
+			if(expectedOverflow !== 1'bx && expectedOverflow !== overflow) begin
 				error = 1;
 				incorrectOverflow = 1;
 			end
-			if(expectedLess !== less) begin
+			if(expectedLess !== 1'bx && expectedLess !== less) begin
 				error = 1;
 				incorrectLess = 1;
 			end
-			if(expectedEqual !== equal) begin
+			if(expectedEqual !== 1'bx && expectedEqual !== equal) begin
 				error = 1;
 				incorrectEqual = 1;
 			end
-			if(expectedGreater !== greater) begin
+			if(expectedEqual !== 1'bx && expectedGreater !== greater) begin
 				error = 1;
 				incorrectGreater = 1;
 			end
-			if(expectedZero !==  zero) begin
+			if(expectedZero !== 1'bx && expectedZero !==  zero) begin
 				error = 1;
 				incorrectZero = 1;
 			end
@@ -213,7 +220,6 @@ module ALU_tests;
 			for(Y = 0; Y < 17'h10000; Y++)
 				checkTest("Adding zero", Y[15:0], 0, 0, 0, 0,
 					Y == 0);
-
 			// Test adding 0xffff to every integer is equivalent
 			// to subtracting one and setting carry if necessary
 			X = 17'h0ffff;
@@ -297,8 +303,118 @@ module ALU_tests;
 			for(Y = 0; Y < 17'h10000; Y++) begin
 				#1;
 				$sformat(testName, "Negating with X = %04x", X[15:0]);
-				checkTest(testName, -Y[15:0], Y == 0, 0, 0, 0, Y == 0);
+				checkTest(testName, -Y[15:0], 1'bx, 0, 0, 0, Y == 0);
 			end;
+		end
+	endtask
+
+	task testScmp;
+		begin
+			op = OPCODE_SCMP;
+
+			cmpTestCase(1, 0);
+			cmpTestCase(1, 1);
+			cmpTestCase(1, -1);
+			cmpTestCase(1, 16'h7fff);
+			cmpTestCase(1, 16'h8000);
+			cmpTestCase(1, 100);
+			cmpTestCase(1, -100);
+		end
+	endtask
+
+	task testUcmp;
+		begin
+			op = OPCODE_UCMP;
+
+			cmpTestCase(0, 0);
+			cmpTestCase(0, 1);
+			cmpTestCase(0, 16'hffff);
+			cmpTestCase(0, 16'h7fff);
+			cmpTestCase(0, 16'h8000);
+			cmpTestCase(0, 16'h3aaa);
+			cmpTestCase(0, 16'haaaa);
+			end
+	endtask
+
+	task cmpTestCase(input signedCmp, input [15:0] fixedVal);
+		reg [1024:0] testName;
+		reg sLess;
+		reg sEqual;
+		reg sGreater;
+		reg uLess;
+		reg uEqual;
+		reg uGreater;
+		reg less;
+		reg equal;
+		reg greater;
+		
+		begin
+			X = fixedVal;
+			
+			// With fixed A
+			swappedInputs = 0;
+			$sformat(testName, "%s comparison for A = %04x",
+				signedCmp ? "Signed" : "Unsigned", X[15:0]);
+
+			for(Y = 0; Y < 17'h10000; Y++) begin
+				#10;
+				sLess = $signed(A) < $signed(B);
+				sEqual = $signed(A) == $signed(B);
+				sGreater = $signed(A) > $signed(B);
+
+				uLess = $unsigned(A) < $unsigned(B);
+				uEqual = $unsigned(A) == $unsigned(B);
+				uGreater = $unsigned(A) > $unsigned(B);
+				
+				#10;
+				less = signedCmp ? sLess : uLess;
+				equal = signedCmp ? sEqual : uEqual;
+				greater = signedCmp ? sGreater : uGreater;
+
+				checkTest(testName, 1'bx, 1'bx,
+					less, equal, greater, 1'bx);
+			end
+			
+			// With fixed B
+			swappedInputs = 1;
+			$sformat(testName, "%s comparison for B = %04x",
+				signedCmp ? "Signed" : "unsigned", X[15:0]);
+
+			for(Y = 0; Y < 17'h10000; Y++) begin
+				#10;
+				sLess = $signed(A) < $signed(B);
+				sEqual = $signed(A) == $signed(B);
+				sGreater = $signed(A) > $signed(B);
+
+				uLess = $unsigned(A) < $unsigned(B);
+				uEqual = $unsigned(A) == $unsigned(B);
+				uGreater = $unsigned(A) > $unsigned(B);
+
+				#10;
+				less = signedCmp ? sLess : uLess;
+				equal = signedCmp ? sEqual : uEqual;
+				greater = signedCmp ? sGreater : uGreater;
+
+				checkTest(testName, 1'bx, 1'bx,
+					less, equal, greater, 1'bx);
+			end
+
+			swappedInputs = 0;
+		end
+	endtask
+
+	task testAND;
+		begin
+		end
+	endtask
+
+	task testOR;
+		begin
+		end
+	endtask
+
+	task testXOR;
+		begin
 		end
 	endtask
 

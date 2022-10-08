@@ -35,3 +35,8 @@ Outputs: One 16-bit integer (C), flags (overflow, less, equal, greater, zero)
 
 If trying to use an illegal operation (i.e. when the operation is not one of
 the numbers defined above), then the ALU has undefined behaviour.
+
+The output 16-bit integer is not defined for signed or unsigned comparisons.
+The overflow flag is not defined for negation, signed comparison or unsigned
+comparison.
+The zero flag is not defined for signed or unsigned comparisons.
