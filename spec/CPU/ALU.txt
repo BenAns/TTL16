@@ -31,7 +31,7 @@ Zero - Set if the result of an operation is 0
 All these operations can be performed in one clock cycle using combinational logic.
 
 Inputs: Two 16-bit integers (A, B), operation (five-bit number)
-Outputs: One 16-bit integer (C), flags (overflow, less, equal, greater, zero)j
+Outputs: One 16-bit integer (C), flags (overflow, less, equal, greater, zero)
 
 If trying to use an illegal operation (i.e. when the operation is not one of
 the numbers defined above), then the ALU has undefined behaviour.
