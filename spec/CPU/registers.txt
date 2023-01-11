@@ -13,3 +13,15 @@ register is modified in branching instructions.
 There is an interrupt register, IR, which contains information on
 interrupt caused. From LSB to MSB:
     Bits 0-7 - Interrupt code
+
+Each individual register is defined as so:
+Inputs: One 16-bit word (DIN), one-bit write (W), one-bit read enable (RE)
+Outputs: One three-state 16-bit word (DOUT)
+
+When W is high, DIN is written to the register. The stored value stays
+constant when W is low.
+
+When RE is low, DOUT outputs the word stored in the register. When RE
+is high, DOUT is unconnected.
+
+
