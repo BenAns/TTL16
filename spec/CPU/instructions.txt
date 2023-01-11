@@ -1,43 +1,14 @@
 Memory:
 None of these instructions have an effect on the flags register.
 
-All instrutions when invoked with a bank register, or BANKDIS, may throw a software
-interrupt with code 0x01 if bank access has been disabled.
-
 MOV A, B:
     Moves the value B to A
-    A is a register, R0-R15, B0-B7, to write directly to, an absolute memory address
+    A is a register, R0-R15, to write directly to, an absolute memory address
     to write to or a register, R0-R15, pointing to an address to write to (with or
     without an offset).
-    B is a literal to use directly, a register (R0-R15, B0-B7, PC, IC or FL) to read
+    B is a literal to use directly, a register (R0-R15, PC, IC or FL) to read
     directly from, an absolute memory address to read from or a register, R0-R15,
     pointing to an address to read from (with or without an offset).
-
-IMP A:
-    Import memory into bank A
-    A is a bank register, B0-B7, which contains the address of the page to write to its
-    corresponding bank.
-
-FLSH A:
-    Flushes bank A to memory
-    A is a bank register, B0-B7, which contains the address of the page to write to its
-    corresponding bank.
-
-CACHE A:
-    Sets A to caching mode
-    A is a data bank register, B4-B7, representing the bank to switch to caching mode.
-
-PASSTHR A:
-    Sets A to pass-through mode
-    A is a data bank register, B4-B7, representing the bank to switch to pass-through mode.
-
-BANKDIS:
-    Disables bank register operations until the next interrupt
-
-SETIVPR A:
-    Sets the interrupt vector page register
-    A is some literal representing an address
-    Throws software interrupt 0x03 if called when interrupts are enabled
 
 Arithmetic:
 All these instructions take a destination "A", and operands "B" and possibly "C". All
@@ -161,9 +132,7 @@ JNC A:
     Jumps execution to address A if the carry flag is not set
 
 RETI:
-    Enable interrupts and return execution to the address in the interrupt
-    address register
-    Throws software interrupt code 0x02 if invoked when interrupts are already enabled
+    Enable interrupts and return execution to the address in IV
 
 Miscellaneous:
 

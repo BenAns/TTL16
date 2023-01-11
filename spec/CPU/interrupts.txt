@@ -1,21 +1,9 @@
-There are hardware and software interrupts available.
+There are only hardware interrupts available.
 
 Hardware interrupts are performed by pulling the hardware
 interrupt line of the CPU high, giving an 8-bit code on
 the hardware interrupt code lines for the nature of the
 interrupt.
-
-Software interrupts are performed by manually performing
-one, or performing some illegal operation. These also have
-an 8-bit code given for their nature. Some codes already
-have meaning given to them:
-    0x00 - Illegal opcode
-    0x01 - Attempt to access a bank register when bank
-           register access has been disabled
-    0x02 - Attempt to return from an interrupt despite
-           not handling one
-    0x03 - Attempt to set the interrupt vector page register
-           despite interrupts being enabled
 
 Interrupts of all form are disabled while handling an interrupt.
 Interrupts are automatically enabled again after invoking RETI.
@@ -25,13 +13,4 @@ interrupt address register, which is automatically used to
 return from the interrupt when invoking RETI.
 
 One interrupt vector is used to handle all interrupts. This
-vector is stored in the interrupt vector page register,
-which specifically stores the page of instructions. This page
-is cached in a special interrupt page cache. After an interrupt
-is performed, this cache takes over the place of the first bank
-in memory available logically. Instructions are then executed
-starting from address 0x0000. Simplified, the first instruction
-bank is swapped for a specially interrupt page cache if interrupts
-are disabled and, when interrupts are performed, PC is set to
-0x0000.
-
+vector is stored in IV.

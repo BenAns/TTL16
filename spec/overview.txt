@@ -3,7 +3,7 @@ expansion cards add all I/O functionality, extra computer power beyond the CPU o
 beyond the primary memory.
 
 From the view of the CPU, the expansion cards are memory-mapped devices. For this, the computer will have
-a 16-bit data bus and a 30-bit address bus, split into 16-bit pages and 14-bit offsets in each of the pages.
+a 16-bit data bus and a 16-bit address bus, split into 6-bit pages and 10-bit offsets in each of the pages.
 Any expansion card will have pages allocated based on the socket it is plugged into, which only it can
 communicate to the CPU with. Primary memory will provide some number of pages of memory to the CPU, but
 not be able to interfere with the pages allocated to expansion cards. This primary memory will provide whole
