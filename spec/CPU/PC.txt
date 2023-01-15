@@ -1,0 +1,18 @@
+The PC is a register holding the value of an address to execute. Differently
+from a normal register, we to be able to both increment it and read from data
+input.
+
+Such a PC can be defined as so:
+Inputs:  16-bit data input (DIN),
+         1-bit write line (W),
+         1-bit write type (writeFromDIN)
+Outputs: 16-bit data output (DOUT)
+
+DOUT continually outputs the value held in the PC, just like a register.
+
+While writeFromDIN is held high, the other lines act just as a normal
+register.
+
+While writeFromDIN is held low, pulling W high writes DOUT + 1 to the PC. This
+occurs on the positive clock edge of W. DIN has no effect on the PC while
+writeFromDIN is held low.

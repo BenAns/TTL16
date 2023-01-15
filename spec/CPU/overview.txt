@@ -10,5 +10,13 @@ give more information on the device which triggered the interrupt.
 There will also be a flags register that may be updated depending on certain instructions.
 
 On startup, the processor executes from address 0x0000 and has interrupts disabled. The
-value of the registers R0-R15 on startup are undefined. To enable interrupts  again, you
-will need to invoke RETI.
+value of the registers R0-R15 on startup are undefined. To enable interrupts again, you
+will need to invoke RETI. This procedure can be invoked by pulling RST high.
+
+The processor will have connections for:
+16-bit address bus (out)  - A0-15
+16-bit data bus (in/out)  - D0-15
+1-bit interrupt pull (in) - IRQ
+4-bit interrupt code (in) - IC0-3
+1-bit clock (in)          - CLK
+1-bit reset (in)          - RST

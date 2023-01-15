@@ -12,16 +12,31 @@ register is modified in branching instructions.
 
 There is an interrupt register, IR, which contains information on
 interrupt caused. From LSB to MSB:
-    Bits 0-7 - Interrupt code
+    Bits 0-4 - Interrupt code
+All other bits are undefined.
 
 Each individual register is defined as so:
-Inputs: One 16-bit word (DIN), one-bit write (W), one-bit read enable (RE)
+Inputs: One 16-bit word (DIN), one-bit write (W)
 Outputs: One three-state 16-bit word (DOUT)
 
-When W is high, DIN is written to the register. The stored value stays
-constant when W is low.
+On a positive clock edge on W, DIN is written to the register.
 
-When RE is low, DOUT outputs the word stored in the register. When RE
-is high, DOUT is unconnected.
+DOUT always outputs the word stored in the register. On startup, this value
+is undefined.
 
+The 16 general purpose registers R0-R15 may be implemented in a register file
+defined as so:
+Inputs:  4-bit write select (WSEL), 1-bit write line (W),
+         16-bit data input (DIN), 4-bit output selects (RSEL0, RSEL1)
+Outputs: 16-bit data outputs (DOUT0, DOUT1)
+
+The register file contains 16 register R0-15. They are connected so that one
+register can be written to and two registers can be read at a time.
+
+WSEL identifies the register to write to. On a positive clock edge on W, DIN
+is written to the register selected.
+
+There are register data outputs DOUT0 and DOUT1. DOUT0 constantly outputs the
+value held in the register identified by RSEL0 and DOUT1 constantly outputs
+the value held in the register identified by RSEL1.
 

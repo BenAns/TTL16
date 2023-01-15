@@ -1,7 +1,7 @@
 There are only hardware interrupts available.
 
 Hardware interrupts are performed by pulling the hardware
-interrupt line of the CPU high, giving an 8-bit code on
+interrupt line of the CPU high, giving a 4-bit code on
 the hardware interrupt code lines for the nature of the
 interrupt.
 

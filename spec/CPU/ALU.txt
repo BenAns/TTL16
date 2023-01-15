@@ -5,8 +5,8 @@ Operations needed:
 00001 - Addition
 00011 - Subtration
 00010 - Negation
-00011 - Signed Comparison
-00111 - Unsigned Comparison
+01011 - Signed Comparison
+01111 - Unsigned Comparison
 
 10000 - Logical AND
 10101 - Logical OR
@@ -35,3 +35,18 @@ Outputs: One 16-bit integer (C), flags (overflow, less, equal, greater, zero)
 
 If trying to use an illegal operation (i.e. when the operation is not one of
 the numbers defined above), then the ALU has undefined behaviour.
+
+For an operation that only needs one operand (i.e. negation, complement and
+shifts), then the input B is used as this operand and A does not affect the
+result. For an operation that needs two operands, A is interpreted as the
+left operand and B is interpreted as the right operand if required.
+
+The output 16-bit integer is not defined for signed or unsigned comparisons.
+
+The overflow flag is not defined for subtraction, negation, signed comparison or unsigned
+comparison. For clarity, it is zero for all rotations.
+
+The zero flag is not defined for signed or unsigned comparisons.
+
+The less, equal and greater flags are only defined for signed and unsigned
+comparisons.
