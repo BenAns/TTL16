@@ -30,9 +30,10 @@ Comparison opcodes:
     B is the second input register
 
 Branching opcodes:
-    10100IUZLEGORRRR
+    1010INUZLEGORRRR
     R is the register containing the address to jump to
     I indicates to set enable interrupts
+    N indicates whether to negate the flags register before testing conditions
     UZLEGO are condition masks explained below
 
     If at least one of these conditions is branch, we branch, even if
