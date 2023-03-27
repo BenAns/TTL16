@@ -16,6 +16,11 @@ STR A, B:
     A is a register containing the address to store to
     B is the source register
 
+MOV A, B:
+    Stores the value of register B into register A
+    A is the destination register
+    B is the source register
+
 Arithmetic:
 All these instructions take operands "A" and possible "B", representing
 general purpose registers R0-R15, containing values used as inputs for the

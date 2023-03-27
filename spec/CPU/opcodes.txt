@@ -16,6 +16,11 @@ Memory opcodes:
         A is the source register
         B is the register containing the address to write to
 
+    MOV:
+        10000011AAAABBBB
+        A is the destination register
+        B is the source register
+
 Arithmetic opcodes:
     110XXXXXAAAABBBB
     X is the opcode given to the ALU
