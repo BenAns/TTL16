@@ -1,0 +1,48 @@
+CPU opcodes are always one word long. All values are in order MSB to LSB.
+
+Memory opcodes:
+    LDVAL:
+        0VVVVVVVRRRR
+        V is the value to load into R
+        R is the register to load to
+
+    LDMEM:
+        10000000AAAABBBB
+        A is the register to load to
+        B is the register containing the address to load from
+        
+    STR:
+        10000001AAAABBBB
+        A is the source register
+        B is the register containing the address to write to
+
+Arithmetic opcodes:
+    110XXXXXAAAABBBB
+    X is the opcode given to the ALU
+    A is the first input register
+    B is the second input register
+    Note that output always goes to R0
+
+Comparison opcodes:
+    111XXXXXAAAABBBB
+    X is the opcode given to the ALU
+    A is the first input register
+    B is the second input register
+
+Branching opcodes:
+    10100IUZLEGORRRR
+    R is the register containing the address to jump to
+    I indicates to set enable interrupts
+    UZLEGO are condition masks explained below
+
+    If at least one of these conditions is branch, we branch, even if
+    others are not met.
+    If U is set, we always branch
+    If Z is set, we branch if the zero flag is set.
+    If L is set, we branch if the less than flag is set.
+    If E is set, we branch if the equal flag is set.
+    If G is set, we branch if the greater than flag is set.
+    If O is set, we branch if the overflow flag is set.
+
+All instructions listed in instructions.txt can be formed using these given
+opcodes, though you may need to consult the ALU opcodes.

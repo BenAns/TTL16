@@ -12,7 +12,7 @@ register is modified in branching instructions.
 
 There is an interrupt register, IR, which contains information on
 interrupt caused. From LSB to MSB:
-    Bits 0-4 - Interrupt code
+    Bits 0-3 - Interrupt code
 All other bits are undefined.
 
 Each individual register is defined as so:

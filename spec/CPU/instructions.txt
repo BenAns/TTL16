@@ -1,65 +1,72 @@
 Memory:
 None of these instructions have an effect on the flags register.
 
-MOV A, B:
-    Moves the value B to A
-    A is a register, R0-R15, to write directly to, an absolute memory address
-    to write to or a register, R0-R15, pointing to an address to write to (with or
-    without an offset).
-    B is a literal to use directly, a register (R0-R15, PC, IC or FL) to read
-    directly from, an absolute memory address to read from or a register, R0-R15,
-    pointing to an address to read from (with or without an offset).
+LDVAL A, B:
+    Loads value A to B
+    A is a 12-bit value
+    B is the destination register
+
+LDMEM A, B:
+    Loads value from address in register A to B
+    A is a register containing the address to read from
+    B is the destination register
+
+STR A, B:
+    Stores register B to address in register A
+    A is a register containing the address to store to
+    B is the source register
 
 Arithmetic:
-All these instructions take a destination "A", and operands "B" and possibly "C". All
-these "A", "B" and "C" are general purpose registers R0-R15. These instructions all
-consider the values in these registers than the register numbers themselves.
+All these instructions take operands "A" and possible "B", representing
+general purpose registers R0-R15, containing values used as inputs for the
+corresponding arithmetic operation. The destination of an operation is always
+R0.
 
 All these will set the zero flag is the result of the calculation is 0, or clear it if
 the result is not zero, but some instructions have additional flag behaviour.
 
-ADD A, B, C:
-    Sets A to the value of B + C
+ADD A, B:
+    Sets R0 to the value of A + B
     Flags:
-	Overflow flag - Set if B + C causes overflow, cleared otherwise
+	Overflow flag - Set if A + B causes overflow, cleared otherwise
 
-SUB A, B, C:
-    Sets A to the value of B - C
+SUB A, B:
+    Sets R0 to the value of A - B
     Flags:
-	Overflow flag - Cleared if B - C causes underflow, set otherwise
+	Overflow flag - Cleared if A - B causes underflow, set otherwise
 
-NEG A, B:
-    Sets A to the value of -B (negation)
+NEG A:
+    Sets R0 to the value of -A (negation)
     Flags:
-	Overflow flag - Set if -B causes overflow, cleared otherwise
+	Overflow flag - Set if -A causes overflow, cleared otherwise
 
-AND A, B, C:
-    Sets A to B & C (bitwise AND)
+AND A, B:
+    Sets R0 to A & B (bitwise AND)
 
-OR A, B, C:
-    Sets A to B | C (bitwise OR)
+OR A, B:
+    Sets R0 to A | B (bitwise OR)
 
-NOT A, B:
-    Set A to ~B (complement)
+NOT A:
+    Set R0 to ~A (complement)
 
-XOR A, B, C:
-    Sets A to B ^ C (bitwise XOR)
+XOR A, B:
+    Sets R0 to A ^ B (bitwise XOR)
 
-ARSH A, B:
-    Sets A to the right arithmetic shift of B performed once
-    Flags:
-        Overflow flag - Set if a 1 bit is lost by the shift, cleared otherwise
-
-LRSH A, B:
-    Sets A to the right logical shift of B performed once
+ARSH A:
+    Sets R0 to the right arithmetic shift of A performed once
     Flags:
         Overflow flag - Set if a 1 bit is lost by the shift, cleared otherwise
 
-ROL A, B:
-    Sets A to the left rotation of B performed once
+LRSH A:
+    Sets R0 to the right logical shift of A performed once
+    Flags:
+        Overflow flag - Set if a 1 bit is lost by the shift, cleared otherwise
 
-ROR A, B:
-    Sets A to the right rotation of B performed once
+ROL A:
+    Sets R0 to the left rotation of A performed once
+
+ROR A:
+    Sets R0 to the right rotation of A performed once
 
 
 Comparison:
@@ -133,9 +140,3 @@ JNC A:
 
 RETI:
     Enable interrupts and return execution to the address in IV
-
-Miscellaneous:
-
-NOP:
-    A null operation, does nothing
-    Has no effect the flag register
