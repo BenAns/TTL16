@@ -2,7 +2,7 @@ CPU opcodes are always one word long. All values are in order MSB to LSB.
 
 Memory opcodes:
     LDVAL:
-        0VVVVVVVRRRR
+        0VVVVVVVVVVVRRRR
         V is the value to load into R
         R is the register to load to
 

@@ -20,3 +20,4 @@ The processor will have connections for:
 4-bit interrupt code (in) - IC0-3
 1-bit clock (in)          - CLK
 1-bit reset (in)          - RST
+1-bit write signal (out)  - W
