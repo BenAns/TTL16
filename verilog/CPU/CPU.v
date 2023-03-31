@@ -10,7 +10,7 @@ module CPU(input CLK,
     input [3:0] IC,
     output [15:0] A,
     output W,
-    wire [15:0] D);
+    inout wire [15:0] D);
 
     // ALU
     wire [15:0] aALU, bALU, qALU;
@@ -41,7 +41,7 @@ module CPU(input CLK,
 
     // Flags register
     wire [15:0] dinFlags, doutFlags;
-    assign dinFlags[15:0] = {0{11}, zeroALU, lessALU, equalALU, greaterALU, overflowALU};
+    assign dinFlags[15:0] = {11'h000, zeroALU, lessALU, equalALU, greaterALU, overflowALU};
     wire wFlags;
     Register flagsReg(dinFlags, wFlags, doutFlags);
 
@@ -52,16 +52,16 @@ module CPU(input CLK,
     
     // Microcode
     wire PCToA, ALUToD, shiftInstrToD, rsel0ToA, rsel1ToD, enableInterrupts;
-    Microcode MC(counterVal, doutInstr, doutFlags, counterRST, PCToA, PCW, writeFromDIN,
+    Microcode MC(counterVal, doutInstr, doutFlags[4:0], counterRST, PCToA, PCW, writeFromDIN,
                  wInstr, ALUToD, rsel0RegFile[3:0], rsel1RegFile[3:0], wselRegFile[3:0],
                  wRegFile, shiftInstrToD, wFlags, rsel0ToA, rsel1ToD, W, enableInterrupts);
 
     // Address bus
     assign A[15:0] = PCToA ? doutPC[15:0] :
-                     rsel0ToA ? dout0RegFile[15:0] : {1'bz{16}};
+                     rsel0ToA ? dout0RegFile[15:0] : 16'bzzzzzzzzzzzzzzzz;
     
     // Data bus
     assign D[15:0] = ALUToD ? qALU[15:0] :
-                     shiftInstrToD ? {0{5}, doutInstr[15:4]} :
-                     rsel1ToD ? dout1RegFile[15:0] : {1'bz{16}};
+                     shiftInstrToD ? {5'h00, doutInstr[14:4]} :
+                     rsel1ToD ? dout1RegFile[15:0] : 16'bzzzzzzzzzzzzzzzz;
 endmodule

@@ -1,3 +1,6 @@
+`ifndef REGISTER_V
+`define REGISTER_V
+
 module Register(input [15:0] DIN,
     input W,
     output [15:0] DOUT);
@@ -98,3 +101,5 @@ module Register_tests;
         end
     endtask
 endmodule
+
+`endif
